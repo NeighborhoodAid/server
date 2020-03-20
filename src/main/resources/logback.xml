@@ -1,7 +1,7 @@
 <configuration>
 
     <logger name="io.sentry" level="ERROR" />
-    <logger name="io.javalin.Javalin" level="ERROR" />
+    <logger name="de.wirvsvirus.neighborhoodaid" level="DEBUG"/>
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -15,7 +15,7 @@
         </filter>
     </appender>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="Console" />
         <appender-ref ref="Sentry" />
     </root>
