@@ -12,4 +12,20 @@ public class Article {
         this.description = description;
         this.done = done;
     }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
 }
