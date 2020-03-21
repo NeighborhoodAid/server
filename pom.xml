@@ -63,6 +63,11 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.vertx/vertx-auth-oauth2 -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-auth-oauth2</artifactId>
+        </dependency>
         <!--    Persistence    -->
         <dependency>
             <groupId>one.microstream</groupId>

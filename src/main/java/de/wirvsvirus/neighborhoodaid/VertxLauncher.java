@@ -11,5 +11,7 @@ public class VertxLauncher extends Launcher {
     @Override
     protected String getMainVerticle() {
         return StarterVerticle.class.getCanonicalName();
+
     }
+
 }
