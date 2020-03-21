@@ -1,7 +1,7 @@
 # NeighborhoodAid Rest-Server
 RestAPI server for NeighborhoodAid
 
-##Server starten
+## Server starten
 ### Über jar
 Die bereitgestellte shaded-jar kann einfach über
 
