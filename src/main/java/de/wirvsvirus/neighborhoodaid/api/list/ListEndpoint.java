@@ -4,6 +4,7 @@ import de.wirvsvirus.neighborhoodaid.api.Endpoint;
 import de.wirvsvirus.neighborhoodaid.api.MediaTypes;
 import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
 import de.wirvsvirus.neighborhoodaid.db.DbAccessor;
+import de.wirvsvirus.neighborhoodaid.db.ShoppingListDAO;
 import de.wirvsvirus.neighborhoodaid.db.model.DbRoot;
 import de.wirvsvirus.neighborhoodaid.db.model.ShoppingList;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
@@ -13,10 +14,14 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 public class ListEndpoint implements Endpoint {
+
+    private static final Logger logger = LoggerFactory.getLogger(ShoppingListDAO.class);
 
     @Override
     public void setupRouting(@NotNull Vertx vertx, @NotNull Router router) {
@@ -44,10 +49,9 @@ public class ListEndpoint implements Endpoint {
             final var user = handleAuthentication(ctx, accessor);
             if (user != null) {
                 final var list = ctx.getBodyAsJson().mapTo(ShoppingList.class);
-                final var table = accessor.getRoot().getShoppingListTable();
-                final var listWithId = table.addShoppingList(list, user.getId());
-                accessor.store();
-                ctx.response().setStatusCode(201).end(Json.encodePrettily(listWithId));
+                final var dao = new ShoppingListDAO(accessor);
+                final var newList = dao.createShoppingList(user, list);
+                ctx.response().setStatusCode(201).end(Json.encodePrettily(newList));
             }
         });
     }
@@ -58,9 +62,12 @@ public class ListEndpoint implements Endpoint {
             if (user != null) {
                 final var list = validateListId(ctx, accessor);
                 if (list != null) {
-                    final var newList = accessor.getRoot().getShoppingListTable().updateShoppingList(list);
-                    accessor.store();
-                    ctx.response().setStatusCode(200).end(Json.encodePrettily(newList));
+                    final var receiveList = getShoppingListFromBody(ctx);
+                    if (receiveList != null) {
+                        final var dao = new ShoppingListDAO(accessor);
+                        final var newList = dao.updateShoppingList(user, list.getId(), receiveList);
+                        ctx.response().setStatusCode(200).end(Json.encodePrettily(newList));
+                    }
                 }
             }
         });
@@ -72,10 +79,9 @@ public class ListEndpoint implements Endpoint {
             if (user != null) {
                 final var list = validateListId(ctx, accessor);
                 if (list != null) {
-                    //TODO handle User shopping lists
-                    accessor.getRoot().getShoppingListTable().removeShoppingList(list.getId());
-                    accessor.store();
-                    ctx.response().setStatusCode(200).end(Json.encodePrettily(list));
+                    final var dao = new ShoppingListDAO(accessor);
+                    final var deletedList = dao.deleteShoppingList(user, list);
+                    ctx.response().setStatusCode(200).end(Json.encodePrettily(deletedList));
                 }
             }
         });
@@ -87,8 +93,8 @@ public class ListEndpoint implements Endpoint {
             if (user != null) {
                 final var list = validateListId(ctx, accessor);
                 if (list != null) {
-                    final var newList = accessor.getRoot().getShoppingListTable().claimShoppingList(list, user.getId());
-                    accessor.store();
+                    final var dao = new ShoppingListDAO(accessor);
+                    final var newList = dao.claimShoppingList(user, list);
                     ctx.response().setStatusCode(200).end(Json.encodePrettily(newList));
                 }
             }
@@ -128,6 +134,16 @@ public class ListEndpoint implements Endpoint {
             }
         } catch (IllegalArgumentException ex) {
             RestUtils.endResponseWithError(ctx, 400, ex.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    private ShoppingList getShoppingListFromBody(RoutingContext ctx) {
+        try {
+            final var json = ctx.getBodyAsJson();
+            return json.mapTo(ShoppingList.class);
+        } catch (Throwable ex) {
+            RestUtils.endResponseWithError(ctx, 400, "Json exception: " + ex.getLocalizedMessage());
         }
         return null;
     }

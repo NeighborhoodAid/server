@@ -1,5 +1,7 @@
 package de.wirvsvirus.neighborhoodaid.db.model;
 
+import java.util.Objects;
+
 public class Article {
     private final int amount;
     private final String title;
@@ -27,5 +29,20 @@ public class Article {
 
     public boolean isDone() {
         return done;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Article article = (Article) o;
+        return amount == article.amount &&
+                title.equals(article.title) &&
+                Objects.equals(description, article.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(amount, title, description);
     }
 }

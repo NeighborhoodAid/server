@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class RestVerticle extends AbstractVerticle {
@@ -36,7 +36,7 @@ public class RestVerticle extends AbstractVerticle {
             opt.ifPresentOrElse(user -> {
                 logger.debug("Test user existing, continue without creation.");
             }, () -> {
-                accessor.getRoot().getUserTable().addUser(new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", 0), List.of()));
+                accessor.getRoot().getUserTable().addUser(new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", 0), new ArrayList<>()));
                 accessor.store();
                 logger.debug("Test user created.");
             });

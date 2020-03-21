@@ -11,10 +11,10 @@ public class User {
     private final String password;
     private final String phoneNumber;
     private final Address address;
-    private final List<Integer> shoppingLists;
+    private final List<UUID> shoppingLists;
 
     public User(UUID id, String name, String email, String password, String phoneNumber, Address address,
-                List<Integer> shoppingLists) {
+                List<UUID> shoppingLists) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -48,7 +48,7 @@ public class User {
         return address;
     }
 
-    public List<Integer> getShoppingLists() {
+    public List<UUID> getShoppingLists() {
         return shoppingLists;
     }
 }
