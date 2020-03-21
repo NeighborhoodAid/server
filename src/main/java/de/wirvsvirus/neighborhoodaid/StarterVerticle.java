@@ -8,9 +8,14 @@ import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
+import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class StarterVerticle extends AbstractVerticle {
 
@@ -32,21 +37,34 @@ public class StarterVerticle extends AbstractVerticle {
                 return;
             }
             JsonObject config = json.result();
-            vertx.deployVerticle(DbVerticle.class.getCanonicalName(), res -> {
-                if (res.succeeded()) {
-                    vertx.deployVerticle(RestVerticle.class.getCanonicalName(),
-                            new DeploymentOptions().setConfig(config),
-                            rest -> {
-                                if (rest.succeeded()) {
-                                    logger.info("Application successful deployed.");
-                                } else {
-                                    startPromise.fail(rest.cause());
-                                }
-                            });
-                } else {
-                    startPromise.fail(res.cause());
-                }
-            });
+            deployInSequence(config,
+                    startPromise,
+                    DbVerticle.class,
+                    RestVerticle.class);
+        });
+    }
+
+    private void deployInSequence(JsonObject config, Promise<Void> startPromise, Class<?>... toStart) {
+        deployInSequence(new DeploymentOptions().setConfig(config), startPromise,
+                new ArrayList<>(Arrays.asList(toStart)));
+    }
+
+    private void deployInSequence(DeploymentOptions options, Promise<Void> startPromise, List<Class<?>> toDeploy) {
+        if (toDeploy.isEmpty()) {
+            logger.info("Application startup complete");
+            startPromise.complete();
+            return;
+        }
+        @SuppressWarnings("unchecked")
+        Class<? extends Verticle> deployNow = (Class<? extends Verticle>) toDeploy.remove(0);
+        logger.info("Now deploying verticle {}", deployNow.getCanonicalName());
+        vertx.deployVerticle(deployNow, options, res -> {
+            if (res.failed()) {
+                startPromise.fail(res.cause());
+            } else {
+                logger.info("Successfully deployed verticle {}", deployNow.getCanonicalName());
+                deployInSequence(options, startPromise, toDeploy);
+            }
         });
     }
 }
