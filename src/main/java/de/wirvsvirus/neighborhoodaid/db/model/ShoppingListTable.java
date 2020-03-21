@@ -11,10 +11,11 @@ public class ShoppingListTable {
         return Optional.ofNullable(shoppingLists.get(id));
     }
 
-    public UUID addShoppingList(ShoppingList shoppingList) {
+    public ShoppingList addShoppingList(ShoppingList shoppingList) {
+        //TODO create new with id
         final var uuid = UUID.randomUUID();
         final var prev = shoppingLists.put(uuid, shoppingList);
-        return uuid;
+        return shoppingList;
     }
 
     /**

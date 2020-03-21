@@ -9,4 +9,12 @@ public class ErrorResponse {
         this.errorCode = errorCode;
         this.errorMessage = message;
     }
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 }

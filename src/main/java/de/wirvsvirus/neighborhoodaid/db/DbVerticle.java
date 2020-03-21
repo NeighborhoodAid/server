@@ -1,5 +1,6 @@
 package de.wirvsvirus.neighborhoodaid.db;
 
+import de.wirvsvirus.neighborhoodaid.TransformCodec;
 import de.wirvsvirus.neighborhoodaid.VertxBusAddresses;
 import de.wirvsvirus.neighborhoodaid.db.model.DbRoot;
 import io.vertx.core.AbstractVerticle;
@@ -20,9 +21,10 @@ public class DbVerticle extends AbstractVerticle {
         final var root = new DbRoot();
         final var storageManager = EmbeddedStorage.start(root);
         this.accessor = new DbAccessor<>(storageManager, root);
+        vertx.eventBus().registerDefaultCodec(DbAccessor.class, new TransformCodec<>());
         vertx.eventBus().<String>consumer(VertxBusAddresses.DB_ROOT, msg -> {
             final var cmd = msg.body();
-            switch (cmd){
+            switch (cmd) {
                 case DbCommands.GET_ACCESSOR:
                     msg.reply(accessor);
                     break;
@@ -31,8 +33,8 @@ public class DbVerticle extends AbstractVerticle {
                     break;
                 default:
                     logger.warn("Unknown database command '" + cmd + "'!");
+                    msg.fail(400, "Unknown database command '" + cmd + "'!");
             }
-            msg.reply(root);
         });
         logger.info("Database running.");
         startPromise.complete();
