@@ -1,6 +1,5 @@
-package de.wirvsvirus.neighborhoodaid;
+package de.wirvsvirus.neighborhoodaid.api;
 
-import de.wirvsvirus.neighborhoodaid.api.Endpoint;
 import de.wirvsvirus.neighborhoodaid.api.list.ListEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.security.LoginEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.security.SignupEndpoint;

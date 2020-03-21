@@ -198,3 +198,6 @@ buildNumber.properties
 .history
 
 # End of https://www.gitignore.io/api/git,maven,eclipse,intellij,visualstudiocode
+
+### Microstream default storage dir ###
+/storage/
