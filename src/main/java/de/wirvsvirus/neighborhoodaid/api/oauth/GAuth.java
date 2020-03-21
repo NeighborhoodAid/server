@@ -1,7 +1,9 @@
 package de.wirvsvirus.neighborhoodaid.api.oauth;
 
+import de.wirvsvirus.neighborhoodaid.ConfigProperties;
 import de.wirvsvirus.neighborhoodaid.api.Endpoint;
 import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.oauth2.OAuth2Auth;
@@ -12,11 +14,19 @@ import org.jetbrains.annotations.NotNull;
 public class GAuth implements Endpoint {
 
     private final String redirectUri = "http://127.0.0.1:8080/oauth";
+    private final String clientSecret;
+    private final String clientId;
+
+    public GAuth(JsonObject config) {
+        JsonObject oauthOptions = config.getJsonObject(ConfigProperties.OAUTH);
+        clientId = oauthOptions.getString(ConfigProperties.CLIENT_ID);
+        clientSecret = oauthOptions.getString(ConfigProperties.CLIENT_SECRET);
+    }
 
     @Override
     public void setupRouting(@NotNull Vertx vertx, @NotNull Router router) {
 
-        OAuth2Auth authProvider = GoogleAuth.create(vertx, "911847919177-tlcbi4vctr05b8jmkolhqrnh144v56rk.apps.googleusercontent.com", "Y8pOsMHUpoW1vQ44Z98eNA9B");
+        OAuth2Auth authProvider = GoogleAuth.create(vertx, clientId, clientSecret);
 
         router.get().handler(ctx -> {
             final var code = ctx.request().getParam("code");

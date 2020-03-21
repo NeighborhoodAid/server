@@ -51,7 +51,7 @@ public class RestVerticle extends AbstractVerticle {
         registerEndpoint("/api/v1/signup", router, new SignupEndpoint());
         registerEndpoint("/api/v1/login", router, new LoginEndpoint());
         registerEndpoint("/api/v1/list", router, new ListEndpoint());
-        registerEndpoint("/oauth", router, new GAuth());
+        registerEndpoint("/oauth", router, new GAuth(config()));
 
         HttpServer server = vertx.createHttpServer();
         server.requestHandler(router).listen(8080, res -> {
