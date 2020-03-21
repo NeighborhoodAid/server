@@ -4,6 +4,8 @@ RestAPI server for NeighborhoodAid
 ### Endpoints
 #### Base Endpoint
     http://.../api/v1/
+#### Signup
+    POST /signup
 #### Login
     POST /login
 #### Shopping list
