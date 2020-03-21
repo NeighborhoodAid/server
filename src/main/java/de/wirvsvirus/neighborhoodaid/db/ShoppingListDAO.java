@@ -10,8 +10,6 @@ import java.util.UUID;
 
 public class ShoppingListDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(ShoppingListDAO.class);
-
     private final DbAccessor<DbRoot> accessor;
 
     public ShoppingListDAO(DbAccessor<DbRoot> accessor) {
@@ -36,11 +34,8 @@ public class ShoppingListDAO {
     public ShoppingList updateShoppingList(User user, UUID uuid, ShoppingList shoppingList) {
         final var shoppingTable = accessor.getRoot().getShoppingListTable();
         final var current = shoppingTable.getShoppingList(uuid);
-            logger.debug("NewValues: " + shoppingList);
-            logger.debug("Current: " + current);
         if (isShoppingListOwner(user, current)) {
             final var newEntry = current.withNewVariables(shoppingList);
-            logger.debug("Merged: " + newEntry);
             shoppingTable.putShoppingList(newEntry);
             accessor.store();
             return newEntry;

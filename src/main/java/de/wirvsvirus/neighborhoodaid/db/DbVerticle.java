@@ -18,8 +18,12 @@ public class DbVerticle extends AbstractVerticle {
     @Override
     public void start(Promise<Void> startPromise) {
         logger.info("Starting database");
-        final var root = new DbRoot();
-        final var storageManager = EmbeddedStorage.start(root);
+        final var storageManager = EmbeddedStorage.start();
+        var root = (DbRoot) storageManager.root();
+        if (root == null) {
+            root = new DbRoot();
+            storageManager.setRoot(root);
+        }
         this.accessor = new DbAccessor<>(storageManager, root);
         vertx.eventBus().registerDefaultCodec(DbAccessor.class, new TransformCodec<>());
         vertx.eventBus().<String>consumer(VertxBusAddresses.DB_ROOT, msg -> {

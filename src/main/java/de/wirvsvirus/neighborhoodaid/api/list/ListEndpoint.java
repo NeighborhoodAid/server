@@ -21,7 +21,8 @@ import java.util.UUID;
 
 public class ListEndpoint implements Endpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(ShoppingListDAO.class);
+    private final static Logger logger = LoggerFactory.getLogger(ShoppingListDAO.class);
+    private final static int MAX_SHOPPINGLIST_CLAIMS = 3;
 
     @Override
     public void setupRouting(@NotNull Vertx vertx, @NotNull Router router) {
@@ -91,11 +92,15 @@ public class ListEndpoint implements Endpoint {
         DbUtils.getDbAccessor(vertx, accessor -> {
             final var user = handleAuthentication(ctx, accessor);
             if (user != null) {
-                final var list = validateListId(ctx, accessor);
-                if (list != null) {
-                    final var dao = new ShoppingListDAO(accessor);
-                    final var newList = dao.claimShoppingList(user, list);
-                    ctx.response().setStatusCode(200).end(Json.encodePrettily(newList));
+                if (user.getShoppingLists().size() >= MAX_SHOPPINGLIST_CLAIMS) {
+                    RestUtils.endResponseWithError(ctx, 400, "Reached maximum of " + MAX_SHOPPINGLIST_CLAIMS + " shopping list claims.");
+                } else {
+                    final var list = validateListId(ctx, accessor);
+                    if (list != null) {
+                        final var dao = new ShoppingListDAO(accessor);
+                        final var newList = dao.claimShoppingList(user, list);
+                        ctx.response().setStatusCode(200).end(Json.encodePrettily(newList));
+                    }
                 }
             }
         });
