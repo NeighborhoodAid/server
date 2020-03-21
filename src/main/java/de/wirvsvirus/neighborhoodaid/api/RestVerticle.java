@@ -1,7 +1,6 @@
 package de.wirvsvirus.neighborhoodaid.api;
 
-import de.wirvsvirus.neighborhoodaid.oauth.GAuth;
-import de.wirvsvirus.neighborhoodaid.oauth.GCallback;
+import de.wirvsvirus.neighborhoodaid.api.oauth.GAuth;
 import de.wirvsvirus.neighborhoodaid.api.list.ListEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.security.LoginEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.security.SignupEndpoint;
@@ -32,8 +31,7 @@ public class RestVerticle extends AbstractVerticle {
         registerEndpoint("/api/v1/signup", router, new SignupEndpoint());
         registerEndpoint("/api/v1/login", router, new LoginEndpoint());
         registerEndpoint("/api/v1/list", router, new ListEndpoint());
-        registerEndpoint("/gauth", router, new GAuth());
-        registerEndpoint("/gcallback", router, new GCallback());
+        registerEndpoint("/oauth", router, new GAuth());
 
         HttpServer server = vertx.createHttpServer();
         server.requestHandler(router).listen(8080, res -> {
