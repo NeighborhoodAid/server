@@ -201,3 +201,8 @@ buildNumber.properties
 
 ### Microstream default storage dir ###
 /storage/
+
+### Config files
+
+config/*
+!config/example-config.json
