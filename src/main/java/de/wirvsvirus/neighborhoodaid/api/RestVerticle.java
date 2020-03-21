@@ -1,10 +1,13 @@
 package de.wirvsvirus.neighborhoodaid.api;
 
-import de.wirvsvirus.neighborhoodaid.api.oauth.GAuth;
 import de.wirvsvirus.neighborhoodaid.api.list.ListEndpoint;
+import de.wirvsvirus.neighborhoodaid.api.oauth.GAuth;
 import de.wirvsvirus.neighborhoodaid.api.security.LoginEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.security.SignupEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.stats.HealthEndpoint;
+import de.wirvsvirus.neighborhoodaid.db.model.Address;
+import de.wirvsvirus.neighborhoodaid.db.model.User;
+import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
@@ -14,13 +17,30 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.UUID;
+
 public class RestVerticle extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(RestVerticle.class);
+    private final static UUID TEST_USER_UUID = UUID.fromString("550e8400-e29b-11d4-a716-446655440000");
+
 
     @Override
     public void start(Promise<Void> startPromise) {
         logger.info("Starting server");
+
+        DbUtils.getDbAccessor(vertx, accessor -> {
+            logger.debug("Creating test user...");
+            final var opt = accessor.getRoot().getUserTable().getUserById(TEST_USER_UUID);
+            opt.ifPresentOrElse(user -> {
+                logger.debug("Test user existing, continue without creation.");
+            }, () -> {
+                accessor.getRoot().getUserTable().addUser(new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", 0), List.of()));
+                accessor.store();
+                logger.debug("Test user created.");
+            });
+        });
 
         Router router = Router.router(vertx);
         //Required for POST body and file upload handling

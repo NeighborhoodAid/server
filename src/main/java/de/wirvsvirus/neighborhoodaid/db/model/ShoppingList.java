@@ -1,18 +1,23 @@
 package de.wirvsvirus.neighborhoodaid.db.model;
 
-import java.time.ZonedDateTime;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.UUID;
 
 public class ShoppingList {
 
+    private final UUID id;
     private final UUID creator;
     private final UUID claimer;
-    private final ZonedDateTime creationDateTime;
-    private final ZonedDateTime dueDateTime;
+    private final Long creationDateTime;
+    private final Long dueDateTime;
     private final List<Article> articles;
 
-    public ShoppingList(UUID creator, UUID claimer, ZonedDateTime creationDateTime, ZonedDateTime dueDateTime, List<Article> articles) {
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public ShoppingList(@JsonProperty("id") UUID id, @JsonProperty("creator") UUID creator, @JsonProperty("claimer") UUID claimer, @JsonProperty("creationDateTime") Long creationDateTime, @JsonProperty("dueDateTime") Long dueDateTime, @JsonProperty("articles")List<Article> articles) {
+        this.id = id;
         this.creator = creator;
         this.claimer = claimer;
         this.creationDateTime = creationDateTime;
@@ -28,6 +33,10 @@ public class ShoppingList {
         return articles.remove(article);
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     public UUID getCreator() {
         return creator;
     }
@@ -36,11 +45,23 @@ public class ShoppingList {
         return claimer;
     }
 
-    public ZonedDateTime getCreationDateTime() {
+    public Long getCreationDateTime() {
         return creationDateTime;
     }
 
-    public ZonedDateTime getDueDateTime() {
+    public Long getDueDateTime() {
         return dueDateTime;
+    }
+
+    protected ShoppingList withId(UUID newId) {
+        return new ShoppingList(newId, creator, claimer, creationDateTime, dueDateTime, articles);
+    }
+
+    protected ShoppingList withCreator(UUID user) {
+        return new ShoppingList(id, user, claimer, creationDateTime, dueDateTime, articles);
+    }
+
+    protected ShoppingList withClaimer(UUID user) {
+        return new ShoppingList(id, creator, user, creationDateTime, dueDateTime, articles);
     }
 }
