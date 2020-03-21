@@ -2,26 +2,27 @@ package de.wirvsvirus.neighborhoodaid.db.model;
 
 public class Address {
 
-    private final Integer postcode;
-    private final String number;
     private final String street;
+    private final String number;
+    private final Integer postcode;
 
-    public Address(Integer postcode, String number, String street) {
-        this.postcode = postcode;
-        this.number = number;
+    public Address(String street, String number, Integer postcode) {
         this.street = street;
+        this.number = number;
+        this.postcode = postcode;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public String getNumber() {
+        return number;
     }
 
     public Integer getPostcode() {
         return postcode;
     }
 
-    public String getNumber(){
-        return number;
-    }
-
-    public String getStreet(){
-        return street;
-    }
 
 }
