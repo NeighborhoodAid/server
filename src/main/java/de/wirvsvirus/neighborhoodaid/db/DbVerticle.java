@@ -1,6 +1,7 @@
 package de.wirvsvirus.neighborhoodaid.db;
 
 import de.wirvsvirus.neighborhoodaid.VertxBusAddresses;
+import de.wirvsvirus.neighborhoodaid.db.model.DbRoot;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import one.microstream.storage.types.EmbeddedStorage;
