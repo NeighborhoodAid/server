@@ -10,10 +10,21 @@
     <packaging>jar</packaging>
 
     <properties>
+        <project.build.sourceEncoding>
+            UTF-8
+        </project.build.sourceEncoding>
         <sentry.version>1.7.30</sentry.version>
         <vertx.version>3.8.5</vertx.version>
         <apache.commons.lang.version>3.9</apache.commons.lang.version>
+        <microstream.version>02.02.01-MS-GA</microstream.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>microstream-releases</id>
+            <url>https://repo.microstream.one/repository/maven-public/</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -45,6 +56,17 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
         </dependency>
+        <!--    Persistence    -->
+        <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>storage.embedded</artifactId>
+            <version>${microstream.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>storage.embedded.configuration</artifactId>
+            <version>${microstream.version}</version>
+        </dependency>
         <!--    Utils    -->
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
@@ -58,7 +80,6 @@
             <version>13.0</version>
             <scope>compile</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -107,18 +128,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>de.wirvsvirus.neighborhoodaid.Launcher</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>io.reactiverse</groupId>
                 <artifactId>vertx-maven-plugin</artifactId>
                 <version>1.0.22</version>
@@ -147,10 +156,10 @@
 
     <distributionManagement>
         <repository>
-          <id>github</id>
-          <name>GitHub NeighborhoodAid Apache Maven Packages</name>
-          <url>https://maven.pkg.github.com/NeighborhoodAid/Server</url>
+            <id>github</id>
+            <name>GitHub NeighborhoodAid Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/NeighborhoodAid/Server</url>
         </repository>
-     </distributionManagement>
+    </distributionManagement>
 
 </project>
