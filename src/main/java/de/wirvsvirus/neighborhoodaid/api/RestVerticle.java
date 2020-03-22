@@ -36,18 +36,7 @@ public class RestVerticle extends AbstractVerticle {
     public void start(Promise<Void> startPromise) {
         logger.info("Starting server");
 
-        //TODO after User handling implemented
-        DbUtils.getDbAccessor(vertx, accessor -> {
-            logger.debug("Creating test user...");
-            User testUser = accessor.getRoot().getUsers().computeIfAbsent(TEST_USER_UUID, (uuid) -> {
-                logger.info("Test User created");
-                return new User(uuid, User.Login.email("test@test.org"), "Tester",
-                        "test@test.org", "unhashed", "+49123456789",
-                        new Address("", "", "", "", "", ""), new ArrayList<>());
-            });
-            accessor.store(testUser);
-            accessor.store(accessor.getRoot().getUsers());
-        });
+        checkTestUser();
 
         final JWTAuth jwt = JWTAuth.create(vertx, new JWTAuthOptions()
                 .addPubSecKey(new PubSecKeyOptions(config().getJsonObject("jwt"))
@@ -90,5 +79,22 @@ public class RestVerticle extends AbstractVerticle {
         endpoint.setupRouting(vertx, subRouter);
         router.mountSubRouter(mountPoint, subRouter);
         logger.info("Registered endpoint '" + mountPoint + "'.");
+    }
+
+    private void checkTestUser() {
+        DbUtils.getDbAccessor(vertx, accessor -> {
+            final var users = accessor.getRoot().getUsers();
+            if (ConfigUtils.isDevModeActive(config())) {
+                users.computeIfAbsent(TEST_USER_UUID, (uuid) -> new User(uuid, User.Login.email("test@test.org"), "Tester",
+                        "test@test.org", "unhashed", "+49123456789",
+                        Address.empty(), new ArrayList<>()));
+                accessor.store(users);
+                logger.warn("DEV MODE: Created test user with id '{}'.", TEST_USER_UUID);
+            } else if (users.containsKey(TEST_USER_UUID)) {
+                users.remove(TEST_USER_UUID);
+                accessor.store(users);
+                logger.info("Removed test user from previous dev mode with the id '{}'.", TEST_USER_UUID);
+            }
+        });
     }
 }
