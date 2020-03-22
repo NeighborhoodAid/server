@@ -15,10 +15,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Build with Maven
-        uses: LucaFeger/action-maven-cli@765e218a50f02a12a7596dc9e7321fc385888a27
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v3
         with:
-          args: clean package
+          maven-version: 3.6.1
+      - name: Build Shade Jar
+        run: mvn clean package
       - name: Create Release
         uses: actions/create-release@v1
         id: create_release
