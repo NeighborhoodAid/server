@@ -3,6 +3,9 @@
     "client_id": "911847919177-tlcbi4vctr05b8jmkolhqrnh144v56rk.apps.googleusercontent.com",
     "client_secret": "Y8pOsMHUpoW1vQ44Z98eNA9B"
   },
-  "jwt_secret": "pleasechange",
+  "jwt": {
+    "publicKey": "123456789123456789123456789",
+    "__comment": "See PubSecKeyOptionsConverter.fromJson for all options. Algorithm and symmetry are set automatically"
+  },
   "__comment": "Put this file in config/config.json"
 }
