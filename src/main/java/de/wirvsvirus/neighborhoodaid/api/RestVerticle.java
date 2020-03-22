@@ -32,6 +32,13 @@ public class RestVerticle extends AbstractVerticle {
 
         //TODO after User handling implemented
         DbUtils.getDbAccessor(vertx, accessor -> {
+            logger.debug("Creating test user...");
+            final var opt = accessor.getRoot().getUserTable().getUserById(TEST_USER_UUID);
+            opt.ifPresentOrElse(user -> {
+                logger.debug("Test user existing, continue without creation.");
+            }, () -> {
+                accessor.getRoot().getUserTable().addUser(new User(TEST_USER_UUID, "Tester", User.Login.email("test@test.org"), "unhashed", "+49123456789", new Address("", "", 0), new ArrayList<>()));
+                accessor.store();
             final var user = accessor.getRoot().getUsers().get(TEST_USER_UUID);
             if (user == null) {
                 final var newUser = new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", "", "", null, null), new ArrayList<>());
