@@ -34,7 +34,7 @@ public class RestVerticle extends AbstractVerticle {
         DbUtils.getDbAccessor(vertx, accessor -> {
             final var user = accessor.getRoot().getUsers().get(TEST_USER_UUID);
             if (user == null) {
-                final var newUser = new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", 0), new ArrayList<>());
+                final var newUser = new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", "", "", null, null), new ArrayList<>());
                 accessor.getRoot().getUsers().put(newUser.getId(), newUser);
                 accessor.store(accessor.getRoot().getUsers());
                 logger.debug("Test user created.");
