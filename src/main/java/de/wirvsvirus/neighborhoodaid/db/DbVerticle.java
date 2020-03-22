@@ -9,6 +9,8 @@ import one.microstream.storage.types.EmbeddedStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
+
 public class DbVerticle extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(DbVerticle.class);

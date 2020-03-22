@@ -68,6 +68,7 @@ public class ShoppingListDAO {
     }
 
     private boolean isShoppingListOwner(User user, ShoppingList shoppingList) {
+        System.out.println(shoppingList.getId() + " : " + user.getShoppingLists().toString());
         return user.getShoppingLists().contains(shoppingList.getId());
     }
 }
