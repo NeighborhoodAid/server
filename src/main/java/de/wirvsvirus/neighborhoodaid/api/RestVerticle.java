@@ -5,6 +5,7 @@ import de.wirvsvirus.neighborhoodaid.api.oauth.GAuth;
 import de.wirvsvirus.neighborhoodaid.api.security.LoginEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.security.SignupEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.stats.HealthEndpoint;
+import de.wirvsvirus.neighborhoodaid.api.user.UserEndpoint;
 import de.wirvsvirus.neighborhoodaid.db.model.Address;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
@@ -52,6 +53,7 @@ public class RestVerticle extends AbstractVerticle {
         registerEndpoint("/api/v1/signup", router, new SignupEndpoint());
         registerEndpoint("/api/v1/login", router, new LoginEndpoint());
         registerEndpoint("/api/v1/list", router, new ListEndpoint());
+        registerEndpoint("/api/v1/user", router, new UserEndpoint());
         registerEndpoint("/oauth", router, new GAuth(config()));
 
         HttpServer server = vertx.createHttpServer();
