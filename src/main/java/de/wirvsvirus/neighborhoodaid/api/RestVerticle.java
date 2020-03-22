@@ -5,6 +5,7 @@ import de.wirvsvirus.neighborhoodaid.api.oauth.GAuth;
 import de.wirvsvirus.neighborhoodaid.api.security.LoginEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.security.SignupEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.stats.HealthEndpoint;
+import de.wirvsvirus.neighborhoodaid.api.user.UserEndpoint;
 import de.wirvsvirus.neighborhoodaid.db.model.Address;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
@@ -34,11 +35,6 @@ public class RestVerticle extends AbstractVerticle {
     public void start(Promise<Void> startPromise) {
         logger.info("Starting server");
 
-        JWTAuth jwt = JWTAuth.create(vertx, new JWTAuthOptions()
-                .addPubSecKey(new PubSecKeyOptions(config().getJsonObject("jwt"))
-                        .setAlgorithm("HS256")
-                        .setSymmetric(true)));
-
         //TODO after User handling implemented
         DbUtils.getDbAccessor(vertx, accessor -> {
             logger.debug("Creating test user...");
@@ -50,22 +46,27 @@ public class RestVerticle extends AbstractVerticle {
             });
             accessor.store(testUser);
             accessor.store(accessor.getRoot().getUsers());
-
         });
 
-        Router router = Router.router(vertx);
+        final JWTAuth jwt = JWTAuth.create(vertx, new JWTAuthOptions()
+                .addPubSecKey(new PubSecKeyOptions(config().getJsonObject("jwt"))
+                        .setAlgorithm("HS256")
+                        .setSymmetric(true)));
+
+        final Router router = Router.router(vertx);
+        router.route("/api/*").handler(JWTAuthHandler.create(jwt, "/api/v1/session"));
         //Required for POST body and file upload handling
-        router.route("/api/*").handler(JWTAuthHandler.create(jwt,"/api/v1/session"));
-        router.route("/api/v1/*").handler(BodyHandler.create());
+        router.route("/api/*").handler(BodyHandler.create());
         router.get("/").handler(ctx -> ctx.response().end("<h1>Start page</h1>"));
 
         registerEndpoint("/api/v1/health", router, new HealthEndpoint());
         registerEndpoint("/api/v1/session/signup", router, new SignupEndpoint());
         registerEndpoint("/api/v1/session/login", router, new LoginEndpoint());
         registerEndpoint("/api/v1/list", router, new ListEndpoint());
+        registerEndpoint("/api/v1/user", router, new UserEndpoint());
         registerEndpoint("/oauth", router, new GAuth(config(), jwt));
 
-        HttpServer server = vertx.createHttpServer();
+        final HttpServer server = vertx.createHttpServer();
         server.requestHandler(router).listen(8080, res -> {
             if (res.succeeded()) {
                 logger.info("Webserver running.");
@@ -77,7 +78,8 @@ public class RestVerticle extends AbstractVerticle {
         });
     }
 
-    private void registerEndpoint(@NotNull final String mountPoint, @NotNull final Router router, @NotNull final Endpoint endpoint) {
+    private void registerEndpoint(@NotNull final String mountPoint, @NotNull final Router router,
+                                  @NotNull final Endpoint endpoint) {
         final var subRouter = Router.router(vertx);
         endpoint.setupRouting(vertx, subRouter);
         router.mountSubRouter(mountPoint, subRouter);
