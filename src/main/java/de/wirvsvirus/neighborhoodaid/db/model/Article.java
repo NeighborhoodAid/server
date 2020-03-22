@@ -1,5 +1,8 @@
 package de.wirvsvirus.neighborhoodaid.db.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class Article {
@@ -8,7 +11,8 @@ public class Article {
     private final String description;
     private final boolean done;
 
-    public Article(int amount, String title, String description, boolean done) {
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public Article(@JsonProperty("amount") int amount, @JsonProperty("title") String title, @JsonProperty("description") String description, @JsonProperty("done") boolean done) {
         this.amount = amount;
         this.title = title;
         this.description = description;

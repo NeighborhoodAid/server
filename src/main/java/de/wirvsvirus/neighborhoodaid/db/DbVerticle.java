@@ -9,8 +9,6 @@ import one.microstream.storage.types.EmbeddedStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Paths;
-
 public class DbVerticle extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(DbVerticle.class);
@@ -30,13 +28,11 @@ public class DbVerticle extends AbstractVerticle {
         vertx.eventBus().registerDefaultCodec(DbAccessor.class, new TransformCodec<>());
         vertx.eventBus().<String>consumer(VertxBusAddresses.DB_ROOT, msg -> {
             final var cmd = msg.body();
-            switch (cmd) {
-                case DbCommands.GET_ACCESSOR:
-                    msg.reply(accessor);
-                    break;
-                default:
-                    logger.warn("Unknown database command '" + cmd + "'!");
-                    msg.fail(400, "Unknown database command '" + cmd + "'!");
+            if (DbCommands.GET_ACCESSOR.equals(cmd)) {
+                msg.reply(accessor);
+            } else {
+                logger.warn("Unknown database command '" + cmd + "'!");
+                msg.fail(400, "Unknown database command '" + cmd + "'!");
             }
         });
         logger.info("Database running.");

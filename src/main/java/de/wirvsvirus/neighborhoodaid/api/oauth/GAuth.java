@@ -3,7 +3,6 @@ package de.wirvsvirus.neighborhoodaid.api.oauth;
 import de.wirvsvirus.neighborhoodaid.ConfigProperties;
 import de.wirvsvirus.neighborhoodaid.api.Endpoint;
 import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.oauth2.OAuth2Auth;
