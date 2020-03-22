@@ -69,12 +69,12 @@ public class GAuth implements Endpoint {
                                     .filter(login::equals)
                                     .findAny();
                             if (dbLogin.isPresent()) {
-                                RestUtils.endResponseWithHtmlSuccess(ctx, 200, "Logged in. Your Token: " + login.generateToken(jwt));
+                                RestUtils.endWithJson(ctx, new JsonObject().put("token", login.generateToken(jwt)).put("status", "existing_acount"));
                             } else {
                                 final UUID randomUUID = UUID.randomUUID();
                                 final User dbUser = new User(randomUUID, "Missing Name", login, "", "", Address.empty(), new ArrayList<>());
                                 db.getRoot().getUsers().put(randomUUID, dbUser);
-                                RestUtils.endResponseWithHtmlSuccess(ctx, 200, "Signed up. Your Token: " + login.generateToken(jwt));
+                                RestUtils.endWithJson(ctx, new JsonObject().put("token", login.generateToken(jwt)).put("status", "account_created"));
                             }
                         });
                     }
