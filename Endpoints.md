@@ -1,40 +1,166 @@
-## Endpoints
-#### Base Endpoint
-    http://.../api/v1/
-#### Health
-    GET /health
-#### Signup - Missing
-    POST /signup
-#### Login - Missing
-    POST /login
-#### Shopping list
-    GET /list/:id - Abrufen der Liste mit :id
-    POST /list  - Zum erstellen von Einkaufslisten
-    POST /list/:id/claim - Um einer Liste zuzusagen
-    PUT /list/:id - Zum akutalisieren einer Liste
-    DELETE /list/:id - Zum löschen von einer Liste
+# Endpoints
+## Dev-Mode
+Um den Dev-Mode zu aktivieren ist folgendes in die config/config.json hinzufügen:
 
-##### Erwartes Format für Shopping List
-Die Shopping List Endpunkte funktionieren soweit. Es gelten allerdings folgende Einschränkungen/Bedingungen:
-###### Für die Authorisierung muss ein HEADER-Feld "Authorization" mit der UUID des anfragenden Nutzers gesendet werden.
-    Authorization: 550e8400-e29b-11d4-a716-446655440000
-###### Da der Benutzer Endpunkt aktuell noch nicht funktionieren gibt es eine Bypass UUID:
-    550e8400-e29b-11d4-a716-446655440000
-###### Nach dem Neustarten einer Anwendung sind die Nutzer noch da, die Shopping Listen allerdings nicht -> wird behoben
-###### Das aktuelle Format für die Listen sieht wie folgt aus:
+      "env": {
+        "dev_mode": true,
+      }
+      
+Damit werden einige "bypass" Optionen eingeschaltet, durch welche die JWT Authentifizierung deaktiviert wird, um die Endpunkte effektiv zu testen.
+
+Im Dev-Mode wird zusätzlich ein Default-Nutzer mit der Id `550e8400-e29b-11d4-a716-446655440000` angelegt. 
+Dieser wird bei Deaktivierung des Dev-Modes wieder entfernt.
+
+## JSON Datenformate
+### User
+
     {
-      "id": "afe2b018-6d69-4684-a666-73344c8e5fd3",
-      "creator": "550e8400-e29b-11d4-a716-446655440000",
-      "claimer": UUID or null,
-      "creationDateTime": Long,
-      "dueDateTime": Long,
-      "articles: [
+      "id": UUID,
+      "login": {                    #Only signup/login
+        "type": ("EMAIL" | GAUTH),
+        "id": (E-Mail | GAuth ID)
+      },
+      "name": String,
+      "email": String,
+      "password" : String,          #Only signup/login
+      "phoneNumber": String,
+      "address": {
+        "street": String,
+        "houseNumber": String,
+        "postcode": String,
+        "city": String,
+        "longitude": String,
+        "latitude": String
+      },
+      "shoppingLists": [
+        UUID
+      ]
+    }
+    
+### Shopping List
+
+    {
+      "id": UUID,
+      "creator": UUID (User),
+      "claimer": UUID (User) | null,
+      "creationDateTime": Long,         #Meant for date-time in String format. Currently Epoch-Millis.
+      "dueDateTime": Long,              #Meant for date-time in String format. Currently Epoch-Millis.
+      "articles": [                     #Could be null or [] on miss
         {
-            "amount" : Int
-            "title" : String
-            "description" : String
-            "done" : Boolean
+          "amount": Int,
+          "title": String,
+          "description": String,
+          "done": Boolean
         }
       ]
     }
-#### Nach jedem Aurfruf wird die neue, manipulierte Liste als antwort zurückgeliefert.
+
+#### Base Endpoint
+    http://.../api/v1/
+#### Health
+Gibt einfache Statusinformationen zur Anwendung zurück.
+- Request
+
+        GET /health
+        
+- Response
+
+        {
+          "uptime": {
+            "millis": 19249,
+            "formatted": "00:00:19.249"
+          }
+        }
+        
+
+#### Signup
+Registriert einen neuen Benutzer.
+- Request
+
+        POST /signup
+        Body: The User to create ("id" is generated and password gets hashed)
+        
+- Response
+
+        -> The created User
+        
+#### Login
+Loggt einen Benutzer ein. JWT Token vorgesehen.
+
+- Request
+
+        POST /login
+        Body: The User fields "login" and "password"
+    
+- Response
+
+        -> The logged-in User
+    
+#### Shopping list
+Alle Endpunkte zum Erstellen und Manipulieren von Einkaufslisten.
+
+- Liste erstellen
+    - Request
+    
+            POST /list
+            Body: The Shopping list without "id"
+    
+    - Response
+    
+            -> The created shopping list
+         
+- Liste abrufen
+    - Request
+    
+            GET /list/:id
+    
+    - Response
+    
+            -> The requested shopping list
+            
+- Liste aktualisieren
+    - Request
+    
+            PUT /list/:id
+            Body: The Shopping list with modified fields
+    
+    - Response
+    
+            -> The modified shopping list
+            
+- Liste löschen
+    - Request
+    
+            DELETE /list/:id
+    
+    - Response
+    
+            -> The deleted shopping list
+            
+- Einer Liste zusagen (als Einkäufer)
+    - Request
+    
+             POST /list/:id/claim
+    
+    - Response
+    
+            -> The claimed shopping list
+            
+- Einkaufslisten in der Nähe finden. `:range` bezieht sich auf den geografischen Abstand (Breiten-, Längengrade).
+    - Request
+    
+             GET /find/:range
+    
+    - Response
+    
+            [
+                -> The shopping lists in "range"
+            ]
+           
+#### Hinweise und Einschränkungen
+- Alle Endpunkte für Einkaufslisten (ausgenommen `find`) erwarten zur 
+Auswertung des anfragenden Nutzers die UUID des Benutzers im HTTP-Header `Authorization`:
+
+        Authorization: UUID (User)
+        
+    Eine Besonderheit gilt hier für `/:id/claim`, hier wird der annehmende (claimende) Nutzer erwartet.
