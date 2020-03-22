@@ -20,8 +20,12 @@ public class DbAccessor<T> {
         return rootObj;
     }
 
-    public void store() {
-        storageManager.storeRoot();
+    public void store(Object instance) {
+        storageManager.store(instance);
+    }
+
+    public void storeAll(Object... instances) {
+        storageManager.storeAll(instances);
     }
 
 }
