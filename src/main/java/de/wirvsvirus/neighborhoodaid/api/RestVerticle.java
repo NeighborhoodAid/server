@@ -55,13 +55,13 @@ public class RestVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         //Required for POST body and file upload handling
-        router.route("/api/*").handler(JWTAuthHandler.create(jwt));
+        router.route("/api/*").handler(JWTAuthHandler.create(jwt,"/api/v1/session"));
         router.route("/api/v1/*").handler(BodyHandler.create());
         router.get("/").handler(ctx -> ctx.response().end("<h1>Start page</h1>"));
 
         registerEndpoint("/api/v1/health", router, new HealthEndpoint());
-        registerEndpoint("/api/v1/signup", router, new SignupEndpoint());
-        registerEndpoint("/api/v1/login", router, new LoginEndpoint());
+        registerEndpoint("/api/v1/session/signup", router, new SignupEndpoint());
+        registerEndpoint("/api/v1/session/login", router, new LoginEndpoint());
         registerEndpoint("/api/v1/list", router, new ListEndpoint());
         registerEndpoint("/oauth", router, new GAuth(config(), jwt));
 
