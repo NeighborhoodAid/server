@@ -3,12 +3,15 @@ package de.wirvsvirus.neighborhoodaid.db.model;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class User {
 
     private final UUID id;
     private final String name;
     private final String email;
     private final String password;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String phoneNumber;
     private final Address address;
     private final List<UUID> shoppingLists;
