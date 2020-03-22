@@ -24,6 +24,10 @@ public class Address {
         this.latitude = latitude;
     }
 
+    public static Address empty() {
+        return new Address("", "", "", "", "", "");
+    }
+
     public String getStreet() {
         return street;
     }

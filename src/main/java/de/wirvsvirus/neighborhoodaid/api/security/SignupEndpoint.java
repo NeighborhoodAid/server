@@ -1,6 +1,7 @@
 package de.wirvsvirus.neighborhoodaid.api.security;
 
 import de.wirvsvirus.neighborhoodaid.api.Endpoint;
+import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
 import de.wirvsvirus.neighborhoodaid.db.model.DataRoot;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.utils.BCrypt;
@@ -20,11 +21,14 @@ public class SignupEndpoint implements Endpoint {
         router.get().handler(ctx -> {
             DbUtils.getDbAccessor(vertx, consumer -> {
                 final User parsedUser = ctx.getBodyAsJson().mapTo(User.class);
-                if(getUserByMail(parsedUser.getEmail(), consumer.getRoot()) == null){
+                if(parsedUser.getLogin().getType() != User.Login.LoginType.EMAIL){
+                    RestUtils.endResponseWithError(ctx, 400, "Please provide an email login");
+                }
+                if(getUserByMail(parsedUser.getLogin().getData(), consumer.getRoot()) == null){
                     //TODO: Bcyrpt
                     final String hashedPassword = BCrypt.hashpw(parsedUser.getPassword(), BCrypt.gensalt());
                     final UUID randomUUID = UUID.randomUUID();
-                    final User user = new User(randomUUID, parsedUser.getName(), parsedUser.getEmail(), hashedPassword, parsedUser.getPhoneNumber(), parsedUser.getAddress(), parsedUser.getShoppingLists());
+                    final User user = new User(randomUUID, parsedUser.getName(), parsedUser.getLogin(), hashedPassword, parsedUser.getPhoneNumber(), parsedUser.getAddress(), parsedUser.getShoppingLists());
                     
                     consumer.getRoot().getUsers().put(randomUUID, user);
 
@@ -40,7 +44,7 @@ public class SignupEndpoint implements Endpoint {
 
     public User getUserByMail(final String mail, final DataRoot dataRoot){
         for(User user : dataRoot.getUsers().values()){
-            if(user.getEmail().equals(mail)){
+            if(user.getLogin().getData().equals(mail)){
                 return user;
             }
         }
