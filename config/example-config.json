@@ -1,4 +1,9 @@
 {
+  "env": {
+    "http_port": 8080,
+    "dev_mode" : false,
+    "__comment" : "DO NOT USE IN PRODUCTION! Enables some bypass functionality to make development easier."
+  },
   "oauth": {
     "client_id": "911847919177-tlcbi4vctr05b8jmkolhqrnh144v56rk.apps.googleusercontent.com",
     "client_secret": "Y8pOsMHUpoW1vQ44Z98eNA9B"

@@ -3,7 +3,6 @@ package de.wirvsvirus.neighborhoodaid.api.user;
 import de.wirvsvirus.neighborhoodaid.api.Endpoint;
 import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
 import de.wirvsvirus.neighborhoodaid.db.UserDAO;
-import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.geolocation.GeoLocation;
 import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
 import io.vertx.core.Vertx;
@@ -47,36 +46,26 @@ public class UserEndpoint implements Endpoint {
                 if (user == null) {
                     RestUtils.endResponseWithError(ctx, 404, "User with id '" + uuid + "' not found.");
                 } else {
-                    final var body = getUserFromBody(ctx);
-                    final var address = body.getAddress();
-                    if (address == null) {
-                        RestUtils.endResponseWithError(ctx, 500, "Missing address field!");
-                    }
-                    else{
-                    GeoLocation.requestGeoLocation(vertx, address, res -> {
-                        final var dao = new UserDAO(accessor);
-                        if (res.succeeded()) {
-                            final var newUser = dao.updateUser(uuid, body.withNewAddress(res.result()));
-                            ctx.response().end(Json.encodePrettily(newUser));
+                    RestUtils.getUserFromBodyOrFail(ctx).ifPresent(body -> {
+                        final var address = body.getAddress();
+                        if (address == null) {
+                            RestUtils.endResponseWithError(ctx, 500, "Missing address field!");
                         } else {
-                            RestUtils.endResponseWithError(ctx, 500, "Could not request address: " + res.cause().getLocalizedMessage());
+                            GeoLocation.requestGeoLocation(vertx, address, res -> {
+                                final var dao = new UserDAO(accessor);
+                                if (res.succeeded()) {
+                                    final var newUser = dao.updateUser(uuid, body.withNewAddress(res.result()));
+                                    ctx.response().end(Json.encodePrettily(newUser));
+                                } else {
+                                    RestUtils.endResponseWithError(ctx, 500, "Could not request address: " + res.cause().getLocalizedMessage());
+                                }
+                            });
                         }
                     });
-                    }
                 }
             });
         } catch (IllegalArgumentException ex) {
             RestUtils.endResponseWithError(ctx, 400, ex.getLocalizedMessage());
         }
-    }
-
-    private User getUserFromBody(RoutingContext ctx) {
-        try {
-            final var json = ctx.getBodyAsJson();
-            return json.mapTo(User.class);
-        } catch (Throwable ex) {
-            RestUtils.endResponseWithError(ctx, 400, "Json exception: " + ex.getLocalizedMessage());
-        }
-        return null;
     }
 }

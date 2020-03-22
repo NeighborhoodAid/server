@@ -2,6 +2,7 @@ package de.wirvsvirus.neighborhoodaid;
 
 import de.wirvsvirus.neighborhoodaid.api.RestVerticle;
 import de.wirvsvirus.neighborhoodaid.db.DbVerticle;
+import de.wirvsvirus.neighborhoodaid.utils.ConfigUtils;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -37,11 +38,20 @@ public class StarterVerticle extends AbstractVerticle {
                 return;
             }
             JsonObject config = json.result();
+            checkDevMode(config);
             deployInSequence(config,
                     startPromise,
                     DbVerticle.class,
                     RestVerticle.class);
         });
+    }
+
+    private void checkDevMode(final JsonObject json) {
+        if (ConfigUtils.isDevModeActive(json)) {
+            logger.warn("------ DEV MODE: ACTIVATED -------");
+            logger.warn("Some bypass functionality is active which definitely breaks security! DO NOT USE IN PRODUCTION!");
+            logger.warn("-----------------------------------");
+        }
     }
 
     private void deployInSequence(JsonObject config, Promise<Void> startPromise, Class<?>... toStart) {

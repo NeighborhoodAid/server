@@ -3,7 +3,10 @@ package de.wirvsvirus.neighborhoodaid.db;
 import de.wirvsvirus.neighborhoodaid.db.model.Address;
 import de.wirvsvirus.neighborhoodaid.db.model.DataRoot;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
+import de.wirvsvirus.neighborhoodaid.utils.BCrypt;
+import io.vertx.core.json.JsonObject;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class UserDAO {
@@ -12,6 +15,34 @@ public class UserDAO {
 
     public UserDAO(DbAccessor<DataRoot> accessor) {
         this.accessor = accessor;
+    }
+
+    public User createNewUser(User user) {
+        final UUID randomUUID = UUID.randomUUID();
+        final String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        final User newEntry = user.withNewIdAndPassword(randomUUID, hashedPassword);
+        final var users = accessor.getRoot().getUsers();
+        final var prev = users.put(randomUUID, newEntry);
+        if (prev != null) {
+            users.put(randomUUID, prev);
+            throw new IllegalStateException("User with uuid '" + randomUUID + "' already exists.");
+        }
+        accessor.store(users);
+        return newEntry;
+    }
+
+    public User createNewGAuthUser(User.Login login, JsonObject json) {
+        final UUID randomUUID = UUID.randomUUID();
+        final var users = accessor.getRoot().getUsers();
+        final User newEntry = new User(randomUUID, login, json.getString("given_name", "Missing") + json.getString("family_name", ""),
+                json.getString("email", ""), null, "", Address.empty(), new ArrayList<>());
+        final var prev = users.put(randomUUID, newEntry);
+        if (prev != null) {
+            users.put(randomUUID, prev);
+            throw new IllegalStateException("User with uuid '" + randomUUID + "' already exists.");
+        }
+        accessor.store(users);
+        return newEntry;
     }
 
     public User updateUser(UUID uuid, User update) {
@@ -25,6 +56,15 @@ public class UserDAO {
         }
         accessor.store(users);
         return newEntry;
+    }
+
+    public User getUserByMail(final String mail) {
+        for (User user : accessor.getRoot().getUsers().values()) {
+            if (user.getLogin().getId().equals(mail)) {
+                return user;
+            }
+        }
+        return null;
     }
 
 }
