@@ -3,6 +3,8 @@ package de.wirvsvirus.neighborhoodaid.db.model;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class User {
     public static class Login {
         private final LoginType type;
@@ -36,6 +38,7 @@ public class User {
     private final String name;
     private final Login login;
     private final String password;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String phoneNumber;
     private final Address address;
     private final List<UUID> shoppingLists;
