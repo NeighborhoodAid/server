@@ -1,58 +1,35 @@
-# NeighborhoodAid Rest-Server
-RestAPI server for NeighborhoodAid
+<div align="center">
+  <img alt="Header" src="https://i.imgur.com/6MnFlEn.png" width="500px">
+    <h1>Nachbarschaftshilfe leicht gemacht :house: :raising_hand:</h1>
+  <strong>Ein Projekt für den #WirVsVirus Hackathons der Bundesregierung</strong>
+</div>
+<p align="center">
+  <a href="https://github.com/NeighborhoodAid/Server/stargazers">
+    <img src="https://img.shields.io/github/stars/NeighborhoodAid/Server.svg?style=plasticr" alt="stars">
+  </a>
+  <a href="https://github.com/NeighborhoodAid/Server/commits/master">
+    <img src="https://img.shields.io/github/last-commit/NeighborhoodAid/Server.svg?style=plasticr" alt="commits">
+  </a>
+</p>
 
-## Server starten
-### Über jar
-Die bereitgestellte shaded-jar kann einfach über
+## Was ist NeighborhoodAid?
 
-    java -jar Server-{version}-shaded.jar
-    
-in einer Shell gestartet werden.
+NeighborhoodAid ist eine Anwendung, die es Menschen, welche durch das Coronavirus (SARS-CoV-2) nicht selbst einkaufen können, erlaubt ihren Einkaufszettel online auf unserer Webseite zu erstellen. Über die Webseite haben andere Personen die Möglichkeit Einkaufslisten von Personen in der Nähe zu sehen und diese für die betroffende Person zu erledigen.  
 
-### Über eine IDE
-Die "main" Methode liegt in:
+## Inhalt
 
-    de.wirvsvirus.neighborhoodaid.VertxLauncher
-    
-Bei starten über IDE einfach diese Main-Methode ausführen.
+- [Was ist NeighborhoodAid?](#was-ist-neighborhoodaid)
+- [Inhalt](#inhalt)
+- [Installation](#installation)
 
-## Endpoints
-#### Base Endpoint
-    http://.../api/v1/
-#### Health
-    GET /health
-#### Signup - Missing
-    POST /signup
-#### Login - Missing
-    POST /login
-#### Shopping list
-    GET /list/:id - Abrufen der Liste mit :id
-    POST /list  - Zum erstellen von Einkaufslisten
-    POST /list/:id/claim - Um einer Liste zuzusagen
-    PUT /list/:id - Zum akutalisieren einer Liste
-    DELETE /list/:id - Zum löschen von einer Liste
+## Installation
 
-##### Erwartes Format für Shopping List
-Die Shopping List Endpunkte funktionieren soweit. Es gelten allerdings folgende Einschränkungen/Bedingungen:
-###### Für die Authorisierung muss ein HEADER-Feld "Authorization" mit der UUID des anfragenden Nutzers gesendet werden.
-    Authorization: 550e8400-e29b-11d4-a716-446655440000
-###### Da der Benutzer Endpunkt aktuell noch nicht funktionieren gibt es eine Bypass UUID:
-    550e8400-e29b-11d4-a716-446655440000
-###### Nach dem Neustarten einer Anwendung sind die Nutzer noch da, die Shopping Listen allerdings nicht -> wird behoben
-###### Das aktuelle Format für die Listen sieht wie folgt aus:
-    {
-      "id": "afe2b018-6d69-4684-a666-73344c8e5fd3",
-      "creator": "550e8400-e29b-11d4-a716-446655440000",
-      "claimer": UUID or null,
-      "creationDateTime": Long,
-      "dueDateTime": Long,
-      "articles: [
-        {
-            "amount" : Int
-            "title" : String
-            "description" : String
-            "done" : Boolean
-        }
-      ]
-    }
-#### Nach jedem Aurfruf wird die neue, manipulierte Liste als antwort zurückgeliefert.
+Über die [Release](https://github.com/NeighborhoodAid/Server/releases) Seite von Github kannst du dir den Server herunterladen. Um Die Anwendung starten zu können benötigst du mindestens Java 11. 
+
+Über den Befehehl 
+```
+java -jar Server-{version}-shaded.jar
+```
+
+kann der Server gestartet werden.
+
