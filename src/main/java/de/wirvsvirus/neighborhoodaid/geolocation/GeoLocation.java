@@ -26,6 +26,7 @@ public class GeoLocation {
                 .addQueryParam("city", address.getCity())
                 .addQueryParam("country", "germany")
                 .addQueryParam("postalcode", address.getPostcode())
+                .addQueryParam("countrycodes", "de")
                 .addQueryParam("format", "json")
                 .send(ar -> {
                     if (ar.succeeded()) {
