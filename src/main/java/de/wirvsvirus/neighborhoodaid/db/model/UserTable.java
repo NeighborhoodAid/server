@@ -13,6 +13,12 @@ public class UserTable {
         return user;
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return users.values().stream()
+                .filter(user -> user.getLogin().getType() == User.Login.LoginType.EMAIL &&user.getLogin().getData().equalsIgnoreCase(email))
+                .findFirst();
+    }
+
     public Optional<User> getUserById(final UUID uuid) {
         return Optional.ofNullable(users.get(uuid));
     }

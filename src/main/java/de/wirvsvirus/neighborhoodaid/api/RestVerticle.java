@@ -36,7 +36,7 @@ public class RestVerticle extends AbstractVerticle {
             opt.ifPresentOrElse(user -> {
                 logger.debug("Test user existing, continue without creation.");
             }, () -> {
-                accessor.getRoot().getUserTable().addUser(new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", 0), new ArrayList<>()));
+                accessor.getRoot().getUserTable().addUser(new User(TEST_USER_UUID, "Tester", User.Login.email("test@test.org"), "unhashed", "+49123456789", new Address("", "", 0), new ArrayList<>()));
                 accessor.store();
                 logger.debug("Test user created.");
             });

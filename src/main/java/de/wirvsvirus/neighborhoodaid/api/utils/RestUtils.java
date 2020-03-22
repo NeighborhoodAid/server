@@ -3,8 +3,11 @@ package de.wirvsvirus.neighborhoodaid.api.utils;
 import de.wirvsvirus.neighborhoodaid.api.ErrorResponse;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RestUtils {
+    private static final Logger logger = LoggerFactory.getLogger(RestUtils.class);
 
     public static void endResponseWithMissingAuthorization(final RoutingContext ctx) {
         endResponseWithError(ctx, 400, "Missing authorization header!");
@@ -22,7 +25,7 @@ public class RestUtils {
         try {
             ctx.response().setStatusCode(statusCode).end(Json.encodePrettily(new ErrorResponse(statusCode, errorMessage)));
         } catch (Throwable e) {
-            System.err.println(e);
+            logger.error("Error during sending of the error response.", e);
         }
     }
 

@@ -4,20 +4,47 @@ import java.util.List;
 import java.util.UUID;
 
 public class User {
+    public static class Login {
+        private final LoginType type;
+        private final String data;
+
+        public enum LoginType {
+            GAUTH, EMAIL;
+        }
+
+        public Login(LoginType type, String data){
+            this.type = type;
+            this.data = data;
+        }
+
+        public LoginType getType() {
+            return type;
+        }
+
+        public String getData() {
+            return data;
+        }
+        public static Login email(String email){
+            return new Login(LoginType.EMAIL, email);
+        }
+        public static Login gauth(String uid){
+            return new Login(LoginType.GAUTH, uid);
+        }
+    }
 
     private final UUID id;
     private final String name;
-    private final String email;
+    private final Login login;
     private final String password;
     private final String phoneNumber;
     private final Address address;
     private final List<UUID> shoppingLists;
 
-    public User(UUID id, String name, String email, String password, String phoneNumber, Address address,
+    public User(UUID id, String name, Login login, String password, String phoneNumber, Address address,
                 List<UUID> shoppingLists) {
         this.id = id;
         this.name = name;
-        this.email = email;
+        this.login = login;
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.address = address;
@@ -32,8 +59,8 @@ public class User {
         return name;
     }
 
-    public String getEmail() {
-        return email;
+    public Login getLogin() {
+        return login;
     }
 
     public String getPassword() {
