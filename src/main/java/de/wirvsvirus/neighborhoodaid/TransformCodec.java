@@ -4,7 +4,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 import org.apache.commons.lang3.NotImplementedException;
 
-public class TransformCodec<T> implements MessageCodec<T,T> {
+public class TransformCodec<T> implements MessageCodec<T, T> {
     @Override
     public void encodeToWire(Buffer buffer, T t) {
         throw new NotImplementedException("Not supporting wire decoding/encoding at the moment.");

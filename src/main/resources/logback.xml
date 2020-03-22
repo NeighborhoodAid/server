@@ -1,6 +1,6 @@
 <configuration>
 
-    <logger name="io.sentry" level="ERROR" />
+    <logger name="io.sentry" level="ERROR"/>
     <logger name="de.wirvsvirus.neighborhoodaid" level="DEBUG"/>
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
@@ -16,8 +16,8 @@
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="Console" />
-        <appender-ref ref="Sentry" />
+        <appender-ref ref="Console"/>
+        <appender-ref ref="Sentry"/>
     </root>
 
 </configuration>
