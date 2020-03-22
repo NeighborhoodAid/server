@@ -63,12 +63,11 @@ public class ListEndpoint implements Endpoint {
             if (user != null) {
                 final var list = validateListId(ctx, accessor);
                 if (list != null) {
-                    final var receiveList = getShoppingListFromBody(ctx);
-                    if (receiveList != null) {
+                    RestUtils.getShoppingListFromBodyOrFail(ctx).ifPresent(receiveList -> {
                         final var dao = new ShoppingListDAO(accessor);
                         final var newList = dao.updateShoppingList(user, list.getId(), receiveList);
                         ctx.response().setStatusCode(200).end(Json.encodePrettily(newList));
-                    }
+                    });
                 }
             }
         });
@@ -139,16 +138,6 @@ public class ListEndpoint implements Endpoint {
             }
         } catch (IllegalArgumentException ex) {
             RestUtils.endResponseWithError(ctx, 400, ex.getLocalizedMessage());
-        }
-        return null;
-    }
-
-    private ShoppingList getShoppingListFromBody(RoutingContext ctx) {
-        try {
-            final var json = ctx.getBodyAsJson();
-            return json.mapTo(ShoppingList.class);
-        } catch (Throwable ex) {
-            RestUtils.endResponseWithError(ctx, 400, "Json exception: " + ex.getLocalizedMessage());
         }
         return null;
     }

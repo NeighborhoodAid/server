@@ -8,12 +8,17 @@ import de.wirvsvirus.neighborhoodaid.api.stats.HealthEndpoint;
 import de.wirvsvirus.neighborhoodaid.api.user.UserEndpoint;
 import de.wirvsvirus.neighborhoodaid.db.model.Address;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
+import de.wirvsvirus.neighborhoodaid.utils.ConfigUtils;
 import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
+import io.vertx.ext.auth.PubSecKeyOptions;
+import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.JWTAuthHandler;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,42 +38,54 @@ public class RestVerticle extends AbstractVerticle {
 
         //TODO after User handling implemented
         DbUtils.getDbAccessor(vertx, accessor -> {
-            final var user = accessor.getRoot().getUsers().get(TEST_USER_UUID);
-            if (user == null) {
-                final var newUser = new User(TEST_USER_UUID, "Tester", "test@test.org", "unhashed", "+49123456789", new Address("", "", "", "", null, null), new ArrayList<>());
-                accessor.getRoot().getUsers().put(newUser.getId(), newUser);
-                accessor.store(accessor.getRoot().getUsers());
-                logger.debug("Test user created.");
-            } else {
-                logger.debug("Test user existing, continue without creation.");
-            }
+            logger.debug("Creating test user...");
+            User testUser = accessor.getRoot().getUsers().computeIfAbsent(TEST_USER_UUID, (uuid) -> {
+                logger.info("Test User created");
+                return new User(uuid, "Tester", User.Login.email("test@test.org"),
+                        "unhashed", "+49123456789",
+                        new Address("", "", "", "", "", ""), new ArrayList<>());
+            });
+            accessor.store(testUser);
+            accessor.store(accessor.getRoot().getUsers());
         });
 
-        Router router = Router.router(vertx);
+        final JWTAuth jwt = JWTAuth.create(vertx, new JWTAuthOptions()
+                .addPubSecKey(new PubSecKeyOptions(config().getJsonObject("jwt"))
+                        .setAlgorithm("HS256")
+                        .setSymmetric(true)));
+
+        final Router router = Router.router(vertx);
+        if (ConfigUtils.isDevModeActive(config())) {
+            logger.warn("DEV MODE: JWT is disabled.");
+        } else {
+            router.route("/api/*").handler(JWTAuthHandler.create(jwt, "/api/v1/session"));
+        }
         //Required for POST body and file upload handling
-        router.route("/api/v1/*").handler(BodyHandler.create());
+        router.route("/api/*").handler(BodyHandler.create());
         router.get("/").handler(ctx -> ctx.response().end("<h1>Start page</h1>"));
 
         registerEndpoint("/api/v1/health", router, new HealthEndpoint());
-        registerEndpoint("/api/v1/signup", router, new SignupEndpoint());
-        registerEndpoint("/api/v1/login", router, new LoginEndpoint());
+        registerEndpoint("/api/v1/auth/signup", router, new SignupEndpoint());
+        registerEndpoint("/api/v1/auth/login", router, new LoginEndpoint());
         registerEndpoint("/api/v1/list", router, new ListEndpoint());
         registerEndpoint("/api/v1/user", router, new UserEndpoint());
-        registerEndpoint("/oauth", router, new GAuth(config()));
+        registerEndpoint("/oauth", router, new GAuth(config(), jwt));
 
-        HttpServer server = vertx.createHttpServer();
-        server.requestHandler(router).listen(8080, res -> {
+        final HttpServer server = vertx.createHttpServer();
+        final var port = ConfigUtils.getHttpPort(config());
+        server.requestHandler(router).listen(port, res -> {
             if (res.succeeded()) {
-                logger.info("Webserver running.");
+                logger.info("Webserver running on port {}.", port);
                 startPromise.complete();
             } else {
-                logger.error("Error while starting the webserver.", res.cause());
+                logger.error("Error while starting the webserver on port {}.", port, res.cause());
                 startPromise.fail(res.cause());
             }
         });
     }
 
-    private void registerEndpoint(@NotNull final String mountPoint, @NotNull final Router router, @NotNull final Endpoint endpoint) {
+    private void registerEndpoint(@NotNull final String mountPoint, @NotNull final Router router,
+                                  @NotNull final Endpoint endpoint) {
         final var subRouter = Router.router(vertx);
         endpoint.setupRouting(vertx, subRouter);
         router.mountSubRouter(mountPoint, subRouter);
