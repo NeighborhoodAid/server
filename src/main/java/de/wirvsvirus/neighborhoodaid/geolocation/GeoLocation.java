@@ -1,31 +1,50 @@
 package de.wirvsvirus.neighborhoodaid.geolocation;
 
+import de.wirvsvirus.neighborhoodaid.db.model.Address;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GeoLocation {
-    public static void ConvertGeoLocation(String Street, String City, String Country, Vertx vertx){
-        WebClient client = WebClient.create(vertx);
 
+    private final static Logger logger = LoggerFactory.getLogger(GeoLocation.class);
+
+    public static void requestGeoLocation(Vertx vertx, Address address, Handler<AsyncResult<Address>> handler) {
+        WebClient client = WebClient.create(vertx);
         client
-                .get(80,"nominatim.openstreetmap.org","search?street=" + Street + "&city=" +City+"&country="+Country+"&format=json")
+                .get(443, "nominatim.openstreetmap.org", "/search")
+                .ssl(true)
+                .addQueryParam("street", address.getHouseNumber() + " " + address.getStreet())
+                .addQueryParam("city", address.getCity())
+                .addQueryParam("country", "germany")
+                .addQueryParam("postalcode", address.getPostcode())
+                .addQueryParam("format", "json")
                 .send(ar -> {
                     if (ar.succeeded()) {
                         HttpResponse<Buffer> response = ar.result();
+                        try {
+                            JsonObject body = response.bodyAsJsonArray().getJsonObject(0);
+                            String lon = body.getString("lon");
+                            String lat = body.getString("lat");
 
-                        JsonObject body = response.bodyAsJsonArray().getJsonObject(0);
-                        String lat = body.getString("lat");
-                        String lon = body.getString("lon");
-
+                            handler.handle(Future.succeededFuture(address.withGeoLocation(lon, lat)));
+                        } catch (DecodeException ex) {
+                            logger.error("Error parsing response: ", ex);
+                            handler.handle(Future.failedFuture(ex));
+                        }
 
                     } else {
-                        System.out.println("Something went wrong " + ar.cause().getMessage());
+                        logger.error("Something went wrong " + ar.cause().getMessage());
+                        handler.handle(Future.failedFuture(ar.cause()));
                     }
                 });
     }
-
-
 }
