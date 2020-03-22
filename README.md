@@ -21,6 +21,9 @@ NeighborhoodAid ist eine Anwendung, die es Menschen, welche durch das Coronaviru
 - [Was ist NeighborhoodAid?](#was-ist-neighborhoodaid)
 - [Inhalt](#inhalt)
 - [Installation](#installation)
+- [Features](#features)
+- [Benutzte Software](#benutzte-software)
+- [Mitentwickler](#mitentwickler)
 
 ## Installation
 
@@ -33,3 +36,28 @@ java -jar Server-{version}-shaded.jar
 
 kann der Server gestartet werden.
 
+## Features
+
+- Erstellen/Löschen/Bearbeiten von Listen
+- Einkaufslisten claimen und als erledigt markieren
+- Anmelden über Google oder via Email
+- Benachrichtigungen wenn eine neue Einkaufsliste in der Umgebung erstellt wurde (nicht implementiert)
+
+## Benutzte Software
+ 
+- [Vertx](https://vertx.io/) 
+- [Microstream](https://microstream.one/)
+- [Maven](https://maven.apache.org/)
+
+## Mitentwickler 
+
+- [Dario Götze](https://github.com/Dudeplayz)
+- [Dennis Schuster](https://github.com/Dennisschu)
+- [iBiber](https://github.com/iBiber)
+- [Lennart Sommerfeld](https://github.com/delorie)
+- [Nathan](https://github.com/NathanNr)
+- [Marcel Piehler](https://github.com/marcel-piehler)
+- [Niklas Marion](https://github.com/Biospheere)
+- [Robin Lindner](https://github.com/deeprobin)
+- [Roman Gräf](https://github.com/romangraef)
+- [Sophie Altenburg](https://github.com/SophieAltenburg)
