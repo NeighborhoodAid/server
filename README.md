@@ -1,7 +1,7 @@
 <div align="center">
-  <img alt="Header" src="https://i.imgur.com/6MnFlEn.png" width="500px">
+  <img alt="Header" src="https://lh3.googleusercontent.com/u/0/d/1vqtzHS0mkJbLiJT9Q6yPeBtzpJPGXkey=w1920-h966-iv1" width="500px">
     <h1>Nachbarschaftshilfe leicht gemacht :house: :raising_hand:</h1>
-  <strong>Ein Projekt für den #WirVsVirus Hackathons der Bundesregierung</strong>
+  <strong>Ein Projekt für den <a href="https://wirvsvirushackathon.org/">#WirVsVirus</a> Hackathon der Bundesregierung</strong>
 </div>
 <p align="center">
   <a href="https://github.com/NeighborhoodAid/Server/stargazers">
