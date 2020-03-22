@@ -6,7 +6,7 @@ Um den Dev-Mode zu aktivieren ist folgendes in die config/config.json hinzufüge
         "dev_mode": true,
       }
       
-Damit werden einige "bypass" Optionen eingeschaltet, durch welche die JWT Authentifizierung deaktiviert wird um die Endpunkte effektiv zu testen.
+Damit werden einige "bypass" Optionen eingeschaltet, durch welche die JWT Authentifizierung deaktiviert wird, um die Endpunkte effektiv zu testen.
 
 Im Dev-Mode wird zusätzlich ein Default-Nutzer mit der Id `550e8400-e29b-11d4-a716-446655440000` angelegt. 
 Dieser wird bei Deaktivierung des Dev-Modes wieder entfernt.
@@ -78,7 +78,7 @@ Registriert einen neuen Benutzer.
 - Request
 
         POST /signup
-        Body: User
+        Body: The User to create ("id" is generated and password gets hashed)
         
 - Response
 
@@ -90,6 +90,7 @@ Loggt einen Benutzer ein. JWT Token vorgesehen.
 - Request
 
         POST /login
+        Body: The User fields "login" and "password"
     
 - Response
 
@@ -102,6 +103,7 @@ Alle Endpunkte zum Erstellen und Manipulieren von Einkaufslisten.
     - Request
     
             POST /list
+            Body: The Shopping list without "id"
     
     - Response
     
@@ -120,6 +122,7 @@ Alle Endpunkte zum Erstellen und Manipulieren von Einkaufslisten.
     - Request
     
             PUT /list/:id
+            Body: The Shopping list with modified fields
     
     - Response
     
