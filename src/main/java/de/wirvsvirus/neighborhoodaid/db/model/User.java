@@ -19,6 +19,83 @@ import java.util.function.Consumer;
 public class User {
     private static final Logger logger = LoggerFactory.getLogger(User.class);
 
+    public static class Login {
+        private final LoginType type;
+        private final String data;
+
+        public String asString() {
+            return type + ":" + data;
+        }
+
+        public static Login fromString(String string) {
+            String[] split = string.split(":", 2);
+            if (split.length < 2) {
+                return null;
+            }
+            try {
+                LoginType loginType = LoginType.valueOf(split[0]);
+                return new Login(loginType, split[1]);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+
+        public String generateToken(JWTAuth jwt) {
+            return jwt.generateToken(new JsonObject()
+                    .put("login", asString()));
+        }
+
+        public static void fromToken(JWTAuth jwt, String token, Consumer<Login> consumer) {
+            jwt.authenticate(new JsonObject()
+                    .put("jwt", token), asyncResult -> {
+                if (asyncResult.failed()) {
+                    logger.error("Error during jwt parsing", asyncResult.cause());
+                } else {
+                    consumer.accept(fromString(asyncResult.result().principal().getString("login")));
+                }
+            });
+        }
+
+        public enum LoginType {
+            GAUTH, EMAIL;
+        }
+
+        public Login(LoginType type, String data) {
+            this.type = type;
+            this.data = data;
+        }
+
+        public LoginType getType() {
+            return type;
+        }
+
+        public String getData() {
+            return data;
+        }
+
+        public static Login email(String email) {
+            return new Login(LoginType.EMAIL, email);
+        }
+
+        public static Login gauth(String uid) {
+            return new Login(LoginType.GAUTH, uid);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(data, type);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (!(obj instanceof Login)) return false;
+            Login that = (Login) obj;
+            return that.getData().equals(this.getData()) && that.getType() == this.getType();
+        }
+    }
+
     private final UUID id;
     private final String name;
     private final Login login;
@@ -71,87 +148,10 @@ public class User {
     }
 
     public User withUpdate(User user) {
-        return new User(this.id, user.name, this.login, this.password, user.phoneNumber, user.address, this.shoppingLists);
+        return new User(this.id, user.name, user.login, this.password, user.phoneNumber, user.address, this.shoppingLists);
     }
 
     public User withNewAddress(Address address) {
         return new User(this.id, this.name, this.login, this.password, this.phoneNumber, address, this.shoppingLists);
-    }
-
-    public static class Login {
-        private final LoginType type;
-        private final String data;
-
-        public enum LoginType {
-            GAUTH, EMAIL;
-        }
-
-        public Login(LoginType type, String data) {
-            this.type = type;
-            this.data = data;
-        }
-
-        public LoginType getType() {
-            return type;
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        public String generateToken(JWTAuth jwt) {
-            return jwt.generateToken(new JsonObject()
-                    .put("login", asString()));
-        }
-
-        public String asString() {
-            return type + ":" + data;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(data, type);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (!(obj instanceof Login)) return false;
-            Login that = (Login) obj;
-            return that.getData().equals(this.getData()) && that.getType() == this.getType();
-        }
-
-        public static Login email(String email) {
-            return new Login(LoginType.EMAIL, email);
-        }
-
-        public static Login gauth(String uid) {
-            return new Login(LoginType.GAUTH, uid);
-        }
-
-        public static Login fromString(String string) {
-            String[] split = string.split(":", 2);
-            if (split.length < 2) {
-                return null;
-            }
-            try {
-                LoginType loginType = LoginType.valueOf(split[0]);
-                return new Login(loginType, split[1]);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-
-        public static void fromToken(JWTAuth jwt, String token, Consumer<Login> consumer) {
-            jwt.authenticate(new JsonObject()
-                    .put("jwt", token), asyncResult -> {
-                if (asyncResult.failed()) {
-                    logger.error("Error during jwt parsing", asyncResult.cause());
-                } else {
-                    consumer.accept(fromString(asyncResult.result().principal().getString("login")));
-                }
-            });
-        }
     }
 }
