@@ -41,8 +41,8 @@ public class RestVerticle extends AbstractVerticle {
             logger.debug("Creating test user...");
             User testUser = accessor.getRoot().getUsers().computeIfAbsent(TEST_USER_UUID, (uuid) -> {
                 logger.info("Test User created");
-                return new User(uuid, "Tester", User.Login.email("test@test.org"),
-                        "unhashed", "+49123456789",
+                return new User(uuid, User.Login.email("test@test.org"), "Tester",
+                        "test@test.org", "unhashed", "+49123456789",
                         new Address("", "", "", "", "", ""), new ArrayList<>());
             });
             accessor.store(testUser);

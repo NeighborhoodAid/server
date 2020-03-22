@@ -3,7 +3,7 @@ package de.wirvsvirus.neighborhoodaid.api.oauth;
 import de.wirvsvirus.neighborhoodaid.ConfigProperties;
 import de.wirvsvirus.neighborhoodaid.api.Endpoint;
 import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
-import de.wirvsvirus.neighborhoodaid.db.model.Address;
+import de.wirvsvirus.neighborhoodaid.db.UserDAO;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
 import io.vertx.core.Vertx;
@@ -18,7 +18,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class GAuth implements Endpoint {
 
@@ -71,9 +73,8 @@ public class GAuth implements Endpoint {
                             if (dbLogin.isPresent()) {
                                 RestUtils.endWithJson(ctx, new JsonObject().put("token", login.generateToken(jwt)).put("status", "existing_acount"));
                             } else {
-                                final UUID randomUUID = UUID.randomUUID();
-                                final User dbUser = new User(randomUUID, "Missing Name", login, "", "", Address.empty(), new ArrayList<>());
-                                db.getRoot().getUsers().put(randomUUID, dbUser);
+                                final var dao = new UserDAO(db);
+                                final var newUser = dao.createNewGAuthUser(login, userData);
                                 RestUtils.endWithJson(ctx, new JsonObject().put("token", login.generateToken(jwt)).put("status", "account_created"));
                             }
                         });

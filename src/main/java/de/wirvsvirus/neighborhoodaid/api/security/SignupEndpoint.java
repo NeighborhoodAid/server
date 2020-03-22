@@ -21,7 +21,7 @@ public class SignupEndpoint implements Endpoint {
                         RestUtils.endResponseWithError(ctx, 400, "Please provide an email login.");
                     } else {
                         final var dao = new UserDAO(consumer);
-                        final var existingUser = dao.getUserByMail(parsedUser.getLogin().getData());
+                        final var existingUser = dao.getUserByMail(parsedUser.getLogin().getId());
                         if (existingUser == null) {
                             if(parsedUser.getPassword() == null || parsedUser.getPassword().isBlank()){
                                 RestUtils.endResponseWithError(ctx, 400, "No password provided.");

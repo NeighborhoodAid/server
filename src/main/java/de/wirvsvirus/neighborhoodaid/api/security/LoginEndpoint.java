@@ -25,12 +25,11 @@ public class LoginEndpoint implements Endpoint {
                 } else {
                     DbUtils.getDbAccessor(vertx, accessor -> {
                         final var dao = new UserDAO(accessor);
-                        final var mailUser = dao.getUserByMail(login.getData());
+                        final var mailUser = dao.getUserByMail(login.getId());
                         if (mailUser == null) {
                             RestUtils.endResponseWithError(ctx, 404, "Invalid email.");
                         } else {
-                            final String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-                            if (mailUser.getPassword().equals(hashedPassword)) {
+                            if (BCrypt.checkpw(user.getPassword(), mailUser.getPassword())) {
                                 ctx.response().end(Json.encodePrettily(mailUser));
                             } else {
                                 RestUtils.endResponseWithError(ctx, 400, "Invalid password.");
