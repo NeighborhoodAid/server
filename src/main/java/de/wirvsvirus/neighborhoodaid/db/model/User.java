@@ -1,5 +1,9 @@
 package de.wirvsvirus.neighborhoodaid.db.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
@@ -9,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
 import java.util.function.Consumer;
 
 public class User {
@@ -95,13 +100,15 @@ public class User {
     private final String name;
     private final Login login;
     private final String password;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String phoneNumber;
     private final Address address;
     private final List<UUID> shoppingLists;
 
-    public User(UUID id, String name, Login login, String password, String phoneNumber, Address address,
-                List<UUID> shoppingLists) {
+    @JsonCreator
+    public User(@JsonProperty("id") UUID id, @JsonProperty("name") String name, @JsonProperty("login") Login login,
+                @JsonProperty("password") String password, @JsonProperty("phoneNumber") String phoneNumber,
+                @JsonProperty("address") Address address,
+                @JsonProperty("shoppingLists") List<UUID> shoppingLists) {
         this.id = id;
         this.name = name;
         this.login = login;
@@ -123,6 +130,7 @@ public class User {
         return login;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -137,5 +145,13 @@ public class User {
 
     public List<UUID> getShoppingLists() {
         return shoppingLists;
+    }
+
+    public User withUpdate(User user) {
+        return new User(this.id, user.name, user.login, this.password, user.phoneNumber, user.address, this.shoppingLists);
+    }
+
+    public User withNewAddress(Address address) {
+        return new User(this.id, this.name, this.login, this.password, this.phoneNumber, address, this.shoppingLists);
     }
 }
