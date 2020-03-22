@@ -55,6 +55,10 @@ public class RestUtils {
         return getObjectFromBodyOrFail(ctx, User.class);
     }
 
+    public static Optional<User.Login> getLoginFromBodyOrFail(RoutingContext ctx) {
+        return getObjectFromBodyOrFail(ctx, User.Login.class);
+    }
+
     public static <T> Optional<T> getObjectFromBodyOrFail(final RoutingContext ctx, final Class<T> clazz) {
         try {
             final var json = ctx.getBodyAsJson();
