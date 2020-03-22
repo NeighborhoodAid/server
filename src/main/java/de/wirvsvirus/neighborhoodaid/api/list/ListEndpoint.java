@@ -5,7 +5,7 @@ import de.wirvsvirus.neighborhoodaid.api.MediaTypes;
 import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
 import de.wirvsvirus.neighborhoodaid.db.DbAccessor;
 import de.wirvsvirus.neighborhoodaid.db.ShoppingListDAO;
-import de.wirvsvirus.neighborhoodaid.db.model.DbRoot;
+import de.wirvsvirus.neighborhoodaid.db.model.DataRoot;
 import de.wirvsvirus.neighborhoodaid.db.model.ShoppingList;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
@@ -106,17 +106,17 @@ public class ListEndpoint implements Endpoint {
         });
     }
 
-    private User handleAuthentication(RoutingContext ctx, DbAccessor<DbRoot> accessor) {
+    private User handleAuthentication(RoutingContext ctx, DbAccessor<DataRoot> accessor) {
         final var auth = RestUtils.getAuthorization(ctx);
         if (auth == null) {
             RestUtils.endResponseWithMissingAuthorization(ctx);
         } else {
             try {
                 final var uuid = UUID.fromString(auth);
-                final var userTable = accessor.getRoot().getUserTable();
-                final var opt = userTable.getUserById(uuid);
-                if (opt.isPresent()) {
-                    return opt.get();
+                final var userTable = accessor.getRoot().getUsers();
+                final var user = userTable.get(uuid);
+                if (user != null) {
+                    return user;
                 } else {
                     RestUtils.endResponseWithInvalidAuthorization(ctx);
                 }
@@ -127,13 +127,13 @@ public class ListEndpoint implements Endpoint {
         return null;
     }
 
-    private ShoppingList validateListId(RoutingContext ctx, DbAccessor<DbRoot> accessor) {
+    private ShoppingList validateListId(RoutingContext ctx, DbAccessor<DataRoot> accessor) {
         try {
             final var id = ctx.request().getParam("id");
             final var uuid = UUID.fromString(id);
-            final var opt = accessor.getRoot().getShoppingListTable().getShoppingListById(uuid);
-            if (opt.isPresent()) {
-                return opt.get();
+            final var shoppingList = accessor.getRoot().getShoppingLists().get(uuid);
+            if (shoppingList != null) {
+                return shoppingList;
             } else {
                 RestUtils.endResponseWithError(ctx, 404, "No shopping list with id '" + uuid + "' found.");
             }
