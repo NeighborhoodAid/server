@@ -5,12 +5,15 @@ import de.wirvsvirus.neighborhoodaid.api.MediaTypes;
 import de.wirvsvirus.neighborhoodaid.api.utils.RestUtils;
 import de.wirvsvirus.neighborhoodaid.db.DbAccessor;
 import de.wirvsvirus.neighborhoodaid.db.ShoppingListDAO;
+import de.wirvsvirus.neighborhoodaid.db.UserDAO;
 import de.wirvsvirus.neighborhoodaid.db.model.DataRoot;
 import de.wirvsvirus.neighborhoodaid.db.model.ShoppingList;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.utils.DbUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +34,17 @@ public class ListEndpoint implements Endpoint {
         router.put("/:id").handler(ctx -> handleUpdate(vertx, ctx));
         router.post("/:id/claim").handler(ctx -> handleClaim(vertx, ctx));
         router.delete("/:id").handler(ctx -> handleDelete(vertx, ctx));
+        router.get("/find/:range").handler(ctx -> handleFind(vertx, ctx));
+    }
+
+    private void handleFind(Vertx vertx, RoutingContext ctx) {
+        DbUtils.getDbAccessor(vertx, accessor -> {
+            double range = Double.parseDouble(ctx.request().getParam("range"));
+            User user = new UserDAO(accessor).getUserByRoutingContext(ctx);
+            JsonArray array = new JsonArray();
+            new ShoppingListDAO(accessor).getShoppingListsNear(user.getAddress(), range).stream().map(JsonObject::mapFrom).forEachOrdered(array::add);
+            ctx.response().setStatusCode(200).end(array.encode());
+        });
     }
 
     private void handleGet(Vertx vertx, RoutingContext ctx) {

@@ -5,8 +5,10 @@ import de.wirvsvirus.neighborhoodaid.db.model.DataRoot;
 import de.wirvsvirus.neighborhoodaid.db.model.User;
 import de.wirvsvirus.neighborhoodaid.utils.BCrypt;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserDAO {
@@ -58,6 +60,13 @@ public class UserDAO {
         return newEntry;
     }
 
+    public Optional<User> getUserByLogin(User.Login login) {
+        return accessor.getRoot().getUsers().values().stream()
+                .filter(user->user.getLogin().equals(login)).findFirst();
+    }
+    public User getUserByRoutingContext(RoutingContext ctx){
+        return getUserByLogin(User.Login.fromString(ctx.user().principal().getString("login"))).orElseThrow();
+    }
     public User getUserByMail(final String mail) {
         for (User user : accessor.getRoot().getUsers().values()) {
             if (user.getLogin().getId().equals(mail)) {
